@@ -5,10 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 await connectDB();
 
-export async function POST(request: NextRequest) {
-  const formData = await request.formData();
-const image = formData.get("image") as File;
-const uploadedUrl = await uploadImageToCloudinary(image);
+// export async function POST = async (request: NextRequest) {
+//   const formData = await request.formData();
+//   const image = formData.get("image") as File;
+//   const uploadedUrl = await uploadImageToCloudinary(image);
+// }
 
 export const GET = async (request: Request) => {
   const food = await Food.find();
@@ -19,17 +20,35 @@ export const GET = async (request: Request) => {
 };
 
 export const POST = async (request: Request) => {
-  const body = await request.json();
-  console.log(body);
-  const food = await Food.create({
-    foodName: body.foodName,
-    foodPrice: body.foodPrice,
-    foodImage: body.foodImage,
-    FoodIngredients: body.foodIngredients,
-    FoodCategoryName: body.FoodCategoryName,
+  const formData = await request.formData();
+
+  const foodName = formData.get("foodName") as string;
+  const ingredients = formData.get("FoodIngredients") as string;
+  const price = formData.get("FoodPrice") as string;
+  const categoryId = formData.get("categoryId") as string;
+  const image = formData.get("FoodImage") as File;
+
+  const uploadedUrl = await uploadImageToCloudinary(image);
+
+  const result = await Food.create({
+    name: foodName,
+    ingredients,
+    price: Number(price),
+    categoryId,
+    image: uploadedUrl,
   });
 
-  return NextResponse.json({ message: "Food added successfully", food });
+  if (result) {
+    return NextResponse.json(
+      { message: "Food item received successfully" },
+      { status: 200 }
+    );
+  } else {
+    return NextResponse.json(
+      { message: "Food Failed to create" },
+      { status: 400 }
+    );
+  }
 };
 
 export const DELETE = async (request: Request) => {
