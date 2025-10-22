@@ -1,38 +1,35 @@
 import { connectDB } from "@/lib/ConnectDB";
 import User from "@/lib/models/login";
-
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 
 export const POST = async (request: Request) => {
   await connectDB();
 
-  const body = await request.json();
+  const { email, password } = await request.json();
 
-  const { password, email } = body;
+  // 1. Find user by email
+  const user = await User.findOne({ email });
 
-  const hashPassword = bcrypt.hashSync(password, 10);
+  // 2. If user not found
+  if (!user) {
+    return NextResponse.json({ message: "User not found" }, { status: 404 });
+  }
 
-  const user = await User.create({
-    email: email,
-    password: hashPassword,
-    role: "ADMIN",
+  // 3. Compare password
+  const isMatch = bcrypt.compareSync(password, user.password);
+
+  if (!isMatch) {
+    return NextResponse.json({ message: "Invalid password" }, { status: 401 });
+  }
+
+  // 4. If success
+  return NextResponse.json({
+    message: "Login successful",
+    user: {
+      email: user.email,
+      role: user.role,
+      id: user._id,
+    },
   });
-
-  return NextResponse.json({ message: "user successfully created", user });
-};
-
-export const GET = async (request: Request) => {
-  await connectDB();
-  const category = await User.find();
-  return NextResponse.json({ message: "Success", category });
-};
-
-export const DELETE = async (request: Request) => {
-  await connectDB();
-  const body = await request.json();
-
-  const category = await User.findByIdAndDelete(body._id);
-
-  return NextResponse.json({ message: "Deleted successfully...", category });
 };
