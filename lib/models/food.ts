@@ -7,8 +7,8 @@ const FoodSchema = new Schema(
     foodName: { type: String, required: true },
     foodPrice: { type: String, required: true },
     foodImage: { type: String, required: false },
-    FoodIngredients: { type: String, required: false },
-    FoodCategoryName: { type: Schema.ObjectId, ref: FoodCategory },
+    foodIngredients: { type: String, required: false },
+    foodCategoryId: { type: Schema.ObjectId, ref: FoodCategory },
   },
 
   {

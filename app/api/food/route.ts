@@ -3,15 +3,8 @@ import Food from "@/lib/models/food";
 import { uploadImageToCloudinary } from "@/lib/utils/uploadImage";
 import { NextRequest, NextResponse } from "next/server";
 
-await connectDB();
-
-// export async function POST = async (request: NextRequest) {
-//   const formData = await request.formData();
-//   const image = formData.get("image") as File;
-//   const uploadedUrl = await uploadImageToCloudinary(image);
-// }
-
 export const GET = async (request: Request) => {
+  await connectDB();
   const food = await Food.find();
   return NextResponse.json({
     message: "Food data retrieved successfully",
@@ -20,22 +13,23 @@ export const GET = async (request: Request) => {
 };
 
 export const POST = async (request: Request) => {
+  await connectDB();
   const formData = await request.formData();
 
   const foodName = formData.get("foodName") as string;
-  const ingredients = formData.get("FoodIngredients") as string;
-  const price = formData.get("FoodPrice") as string;
-  const categoryId = formData.get("categoryId") as string;
-  const image = formData.get("FoodImage") as File;
+  const ingredients = formData.get("foodIngredients") as string;
+  const price = formData.get("foodPrice") as string;
+  const categoryId = formData.get("foodCategoryId") as string;
+  const image = formData.get("foodImage") as File;
 
   const uploadedUrl = await uploadImageToCloudinary(image);
 
   const result = await Food.create({
-    name: foodName,
-    ingredients,
-    price: Number(price),
-    categoryId,
-    image: uploadedUrl,
+    foodName: foodName,
+    foodIngredients: ingredients,
+    foodPrice: Number(price),
+    foodCategoryId: categoryId,
+    foodImage: uploadedUrl,
   });
 
   if (result) {
